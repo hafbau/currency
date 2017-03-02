@@ -5,7 +5,7 @@ var self = module.exports = {
 
 	ver001: (data, res) => {
 
-		if (typeof data.base === 'undefined' || data.base === '') {
+		if (!data.base) {
 			self.sendResponse(res, 403, 'Please supply a base currency symbol');
 			return;
 		}
@@ -15,17 +15,17 @@ var self = module.exports = {
     let date, symbols;
 		let url = 'https://api.fixer.io/latest?symbols=' + data.symbol.from + ',' + data.symbol.to;
 
-		if (typeof data.symbol === 'undefined' || data.symbol === '') {
+		if (!data.symbol) {
 			self.sendResponse(res, 403, 'Please supply a currency symbol to convert to');
 			return;
 		}
 
-		if (typeof data.amount === 'undefined' || data.amount === '') {
+		if (!data.amount) {
 			self.sendResponse(res, 403, 'Please supply an amount to convert');
 			return;
 		}
 
-		if (typeof data.symbol === 'object') {
+		if (Array.isArray(data.symbol)) {
 
 			let str = '';
 			const symbolArray = data.symbol;
@@ -42,7 +42,7 @@ var self = module.exports = {
 
 		}
 
-		if (typeof data.date !== 'undefined') {
+		if (!data.date) {
 			if (typeof data.date !== 'string') {
 				self.sendResponse(res, 403, 'Please provide the date as a string');
 				return;
@@ -108,7 +108,7 @@ var self = module.exports = {
 	sendResponse: (res, status, response) => {
 
         if(typeof response === 'object'){
-            response = JSON.stringify(response);
+            response = JSON.stringify(response) + '\n';
         }
 	    res.status(status);
 	    res.write(response);
