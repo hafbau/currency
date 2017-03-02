@@ -10,9 +10,10 @@ var self = module.exports = {
 			return;
 		}
 
-		var base = data.base.toUpperCase();
+		const base = data.base.toUpperCase();
 
-		var url = 'https://api.fixer.io/latest?symbols=' + data.symbol.from + ',' + data.symbol.to;
+    let date, symbols;
+		let url = 'https://api.fixer.io/latest?symbols=' + data.symbol.from + ',' + data.symbol.to;
 
 		if (typeof data.symbol === 'undefined' || data.symbol === '') {
 			self.sendResponse(res, 403, 'Please supply a currency symbol to convert to');
@@ -26,18 +27,18 @@ var self = module.exports = {
 
 		if (typeof data.symbol === 'object') {
 
-			var str = '';
-			var symbolArray = data.symbol;
+			let str = '';
+			const symbolArray = data.symbol;
 
-			for (var i = symbolArray.length - 1; i >= 0; i--) {
+			for (let i = symbolArray.length - 1; i >= 0; i--) {
 				str += symbolArray[i].toUpperCase() + ',';
 			}
 
-			var symbols = str;
+			symbols = str;
 
 		} else {
 
-			var symbols = data.symbol.toUpperCase();
+			symbols = data.symbol.toUpperCase();
 
 		}
 
@@ -48,7 +49,7 @@ var self = module.exports = {
 			}
      
 			if (isValidDateStr(data.date)) {
-        var date = data.date;
+        date = data.date;
       } else {
 
         self.sendResponse(res, 403, 'Please provide valid date as a string in the form yyyy-mm-dd\n');
@@ -56,16 +57,16 @@ var self = module.exports = {
       }
 
 		} else {
-			var date = 'latest';
+			date = 'latest';
 		}
 
-		var url = 'http://api.fixer.io/' + date + '?base=' + base + '&symbols=' + symbols;
+		url = 'http://api.fixer.io/' + date + '?base=' + base + '&symbols=' + symbols;
 
         rest.get(url).on('complete', function(err, response) {
 
             if (response.statusCode == 200) {
 
-            	var returns = {
+            	const returns = {
             		base: data.base,
             		amount: data.amount,
             		results: self.convertAmount(data.amount, JSON.parse(response.rawEncoded)),
