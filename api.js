@@ -88,15 +88,21 @@ var self = module.exports = {
 
 	convertAmount: (amount, data) => {
 
-		var rates = data.rates;
-		var returns = [];
+		const rates = data.rates;
+		const returns = [];
 
-		for (var r in rates) {
+		for (let r in rates) {
 
 			if (rates.hasOwnProperty(r)) {
 
-				var convert = (amount * rates[r]);
-				returns.push({from: data.base, to: r, roundedResult: convert.toFixed(2), fullResult: convert, rate: rates[r]})
+				const convert = (amount * rates[r]);
+				returns.push({
+          from:           data.base,
+          to:             r,
+          roundedResult:  convert.toFixed(2),
+          fullResult:     convert,
+          rate:           rates[r]
+        });
 
 			}
 
