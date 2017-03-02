@@ -1,7 +1,7 @@
-var rest = require('restler');
-var isValidDateStr = require('./date_validator');
+const rest = require('restler');
+const isValidDateStr = require('./date_validator');
 
-var self = module.exports = {
+const self = module.exports = {
 
 	ver001: (data, res) => {
 
@@ -11,7 +11,6 @@ var self = module.exports = {
 		}
 
 		const base = data.base.toUpperCase();
-
     let date, symbols;
 		let url = 'https://api.fixer.io/latest?symbols=' + data.symbol.from + ',' + data.symbol.to;
 
@@ -26,7 +25,6 @@ var self = module.exports = {
 		}
 
 		if (Array.isArray(data.symbol)) {
-
 			let str = '';
 			const symbolArray = data.symbol;
 
@@ -35,11 +33,8 @@ var self = module.exports = {
 			}
 
 			symbols = str;
-
 		} else {
-
 			symbols = data.symbol.toUpperCase();
-
 		}
 
 		if (!data.date) {
@@ -47,9 +42,10 @@ var self = module.exports = {
 				self.sendResponse(res, 403, 'Please provide the date as a string');
 				return;
 			}
-     
+
 			if (isValidDateStr(data.date)) {
         date = data.date;
+
       } else {
 
         self.sendResponse(res, 403, 'Please provide valid date as a string in the form yyyy-mm-dd\n');
@@ -62,40 +58,36 @@ var self = module.exports = {
 
 		url = 'http://api.fixer.io/' + date + '?base=' + base + '&symbols=' + symbols;
 
-        rest.get(url).on('complete', function(err, response) {
+    rest.get(url).on('complete', function(err, response) {
+      if (response.statusCode == 200) {
+      	const returns = {
+      		base: data.base,
+      		amount: data.amount,
+      		results: self.convertAmount(data.amount, JSON.parse(response.rawEncoded)),
+      		dated: data.date
+      	};
 
-            if (response.statusCode == 200) {
+      	self.sendResponse(res, 200, returns);
+      }
 
-            	const returns = {
-            		base: data.base,
-            		amount: data.amount,
-            		results: self.convertAmount(data.amount, JSON.parse(response.rawEncoded)),
-            		dated: data.date
-            	};
+      if (response.statusCode == 401) {
+        callback('Not Authorized');
+      }
 
-            	self.sendResponse(res, 200, returns);
-            }
-            if (response.statusCode == 401) {
-                callback('Not Authorized');
-            }
-            if (response.statusCode == 502) {
-                callback('API Error');
-            }
-
-        });
-
+      if (response.statusCode == 502) {
+        callback('API Error');
+      }
+    });
 	},
 
 	convertAmount: (amount, data) => {
-
 		const rates = data.rates;
 		const returns = [];
 
 		for (let r in rates) {
-
 			if (rates.hasOwnProperty(r)) {
-
 				const convert = (amount * rates[r]);
+
 				returns.push({
           from:           data.base,
           to:             r,
@@ -103,23 +95,20 @@ var self = module.exports = {
           fullResult:     convert,
           rate:           rates[r]
         });
-
 			}
-
 		}
 
 		return returns;
 	},
 
 	sendResponse: (res, status, response) => {
+    if (typeof response === 'object') {
+        response = JSON.stringify(response) + '\n';
+    }
 
-        if(typeof response === 'object'){
-            response = JSON.stringify(response) + '\n';
-        }
-	    res.status(status);
-	    res.write(response);
-	    res.end();
-	    return
-
+    res.status(status);
+    res.write(response);
+    res.end();
+    return;
 	}
 }
