@@ -1,4 +1,5 @@
 var rest = require('restler');
+var isValidDateStr = require('./date_validator');
 
 var self = module.exports = {
 
@@ -45,7 +46,15 @@ var self = module.exports = {
 				self.sendResponse(res, 403, 'Please provide the date as a string');
 				return;
 			}
-			var date = data.date;
+     
+			if (isValidDateStr(data.date)) {
+        var date = data.date;
+      } else {
+
+        self.sendResponse(res, 403, 'Please provide valid date as a string in the form yyyy-mm-dd\n');
+        return;
+      }
+
 		} else {
 			var date = 'latest';
 		}
