@@ -1,4 +1,4 @@
-# Currency
+# Currency: Fixing
 
 ## How to
 * Clone this repo
